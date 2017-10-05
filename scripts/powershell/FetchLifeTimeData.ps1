@@ -2,7 +2,9 @@
 <#       Script: FetchLifeTimeData                                                 #>
 <#  Description: Fetch the latest Application and Environment data in LifeTime     #>
 <#               for invoking the Deployment API.                                  #>
-<#         Date: 2017-10-02                                                        #>
+<#         Date: 2017-10-05                                                        #>
+<#       Author: rrmendes                                                          #>
+<#         Path: jenkins/scripts/powershell/FetchLifeTimeData.ps1                  #>
 <###################################################################################>
 
 <###################################################################################>
@@ -21,15 +23,18 @@ function CallDeploymentAPI ($Method, $Endpoint, $Body)
 		Accept = "application/json"
 	}
 		
-	Invoke-RestMethod -Method $Method -Uri $Url -Headers $Headers -ContentType $ContentType -Body $body
+	try { Invoke-RestMethod -Method $Method -Uri $Url -Headers $Headers -ContentType $ContentType -Body $body }
+	catch { Write-Host $_; exit 9 }
 }
 
 # Fetch latest OS Environments data 
-CallDeploymentAPI -Method GET -Endpoint environments | Tee-Object -Variable Environments | Format-Table Name,Key > LT.Environments.mapping
+$Environments = CallDeploymentAPI -Method GET -Endpoint environments 
+$Environments | Format-Table Name,Key > LT.Environments.mapping
 "Environments=" + ( ( $Environments | %{ $_.Name } | Sort-Object ) -join "," ) | Out-File LT.Environments.properties -Encoding Default
 echo "OS Environments data retrieved successfully."
 
 # Fetch latest OS Applications data
-CallDeploymentAPI -Method GET -Endpoint applications | Tee-Object -Variable Applications | Format-Table Name,Key > LT.Applications.mapping
+$Applications = CallDeploymentAPI -Method GET -Endpoint applications 
+$Applications | Format-Table Name,Key > LT.Applications.mapping
 "Applications=" + ( ( $Applications | %{ $_.Name } | Sort-Object ) -join "," ) | Out-File LT.Applications.properties -Encoding Default
 echo "OS Applications data retrieved successfully."

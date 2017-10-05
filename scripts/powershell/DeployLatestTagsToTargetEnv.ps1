@@ -2,7 +2,9 @@
 <#       Script: DeployLatestTagsToTargetEnv                                       #>
 <#  Description: Deploy to target environment the latest tags of configured        #>
 <#               LifeTime applications.                                            #>
-<#         Date: 2017-10-02                                                        #>
+<#         Date: 2017-10-05                                                        #>
+<#       Author: rrmendes                                                          #>
+<#         Path: jenkins/scripts/powershell/DeployLatestTagsToTargetEnv.ps1        #>
 <###################################################################################>
 
 <###################################################################################>
@@ -20,9 +22,10 @@ function CallDeploymentAPI ($Method, $Endpoint, $Body)
 		Authorization = "Bearer $env:AuthorizationToken"
 		Accept = "application/json"
 	}
-		
-	Invoke-RestMethod -Method $Method -Uri $Url -Headers $Headers -ContentType $ContentType -Body $body
-}
+	
+	try { Invoke-RestMethod -Method $Method -Uri $Url -Headers $Headers -ContentType $ContentType -Body $body }
+	catch { Write-Host $_; exit 9 }
+}	
 
 # Translate environment names to the corresponding keys
 $SourceEnvKey = Select-String "$env:SourceEnvironment\s+([\w-]+)" $env:WORKSPACE\LT.Environments.mapping -list | %{ $_.Matches.Groups[1].Value }
@@ -64,7 +67,6 @@ do {
 	
 	if ($DeploymentStatus -ne "running") {	
 		# Return Deployment Plan status
-		$DeploymentStatus > LT.DeploymentPlan.Status
 		echo "Deployment plan finished with status '$DeploymentStatus'."
 		exit 0
 	}
