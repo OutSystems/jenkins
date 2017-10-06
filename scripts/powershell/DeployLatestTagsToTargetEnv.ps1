@@ -2,7 +2,7 @@
 <#       Script: DeployLatestTagsToTargetEnv                                       #>
 <#  Description: Deploy to target environment the latest tags of configured        #>
 <#               LifeTime applications.                                            #>
-<#         Date: 2017-10-05                                                        #>
+<#         Date: 2017-10-06                                                        #>
 <#       Author: rrmendes                                                          #>
 <#         Path: jenkins/scripts/powershell/DeployLatestTagsToTargetEnv.ps1        #>
 <###################################################################################>
@@ -53,7 +53,7 @@ echo "Deployment plan '$DeploymentPlanKey' created successfully."
 
 # Start Deployment Plan execution
 $DeploymentPlanStart = CallDeploymentAPI -Method POST -Endpoint "deployments/$DeploymentPlanKey/start"
-echo ("Deployment plan '$DeploymentPlanKey' started with status code '" + $DeploymentPlanStart.StatusCode + "'.")
+echo "Deployment plan '$DeploymentPlanKey' started being executed."
 
 # Sleep thread until deployment has finished
 $WaitCounter = 0
